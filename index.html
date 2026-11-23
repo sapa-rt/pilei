@@ -362,6 +362,26 @@ main:has(>#pd:not(.hide))>#dpsec>.dph{grid-column:2}
 /* Kartu tahapan: tombol Simpan 25% */
 #p_tahapan #tsv,#p_tahapan #tcx{width:calc(25% - 6px)}
 }
+
+/* ===== Revisi: tabel, header HP, Warga, judul seksi ===== */
+.hdr #tb{background:rgba(255,255,255,.3);border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
+.flat>h3{font-size:18px}
+.flat .rowh>h3,.dph>h3{font-size:17.7px}
+.wil{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-bottom:14px}
+.wil #pdc .rowh{margin:0!important;min-height:47px;padding:0 16px!important;gap:18px;border-radius:14px!important;align-items:center}
+@media(max-width:767px){#menu button[data-k=info],#menu button[data-k=keluarga]{display:none}}
+@media(min-width:768px){
+.hdr #tb,.hdr #sel{display:none}
+.dkel{display:none}
+/* Tabel Data Pemilih (Kelurahan) = ukuran kolom tabel Pendata */
+#vtb .ht{width:100%;table-layout:fixed}
+#vtb .ht th,#vtb .ht td{padding-left:8px;padding-right:8px;overflow-wrap:anywhere}
+#vtb .ht td.nm,#vtb .ht td.al{min-width:0;max-width:none}
+#vtb .ht tr:first-child th:nth-child(1){width:40%}
+#vtb .ht tr:first-child th:nth-child(2){width:35%}
+#vtb .ht tr:first-child th:nth-child(3){width:15%}
+#vtb .ht tr:first-child th:nth-child(4){width:10%}
+}
 </style></head><body>
 
 <div id="splash" class="abs">
@@ -509,7 +529,7 @@ function donutLeg(l,pr,lt){const [cL,cP]=dcol(lt);return `<div class="legend"><s
 const donut=(l,pr,z=150,lt=false)=>donutSvg(l,pr,z,lt,true)+donutLeg(l,pr,lt);
 const SELIC='<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>';
 const hdr=(l,p,more,lbl='Selengkapnya',icn=SELIC,id='sel')=>`<div class="hdc">${donutSvg(l,p,104,true,false)}<div class="hdr">${donutLeg(l,p,true)}${more?`<button class="btn" id="${id}" type="button">${ic(icn,16)}${lbl}</button>`:''}</div></div>`;
-const hdrP=(l,p)=>hdr(l,p,false);
+const hdrP=(l,p,on=true)=>hdr(l,p,on,'Tambah Data',PG,'tb');
 let subCfg={};
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2600)}
 const art='<svg class="bgart" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="ha" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="730" cy="30" r="110" fill="url(#ha)"/><circle cx="60" cy="190" r="90" fill="url(#ha)"/><g fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"><circle cx="730" cy="30" r="150"/><path d="M-20 150q200-90 400 0t440-30"/></g><circle cx="600" cy="150" r="5" fill="#ffcf75" fill-opacity=".7"/><circle cx="250" cy="40" r="4" fill="#ffcf75" fill-opacity=".6"/></svg>';
@@ -912,7 +932,8 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  // --- Tabel Data Pemilih (RT/RW pendata)
  let dpD=[],dpHl=null;
  const dpDraw=()=>{const el=$('#dp'),d=dpD,hl=dpHl,q=($('#dpq').value||'').trim().toLowerCase(),l=d.filter(x=>!q||[x.nama_kk,x.alamat].join(' ').toLowerCase().includes(q));$('#dps').hidden=!d.length;
-  el.innerHTML=l.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+l.map(x=>`<tr${x.nkk==hl?' class="new"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':(d.length?'<p class="hint">Data tidak ditemukan.</p>':'<p class="hint">Belum ada data pemilih.</p>')};
+  el.innerHTML=l.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+l.map(x=>`<tr${x.nkk==hl?' class="new"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':(d.length?'<p class="hint">Data tidak ditemukan.</p>':'<p class="hint">Belum ada data pemilih.</p>');dpFit()};
+ const dpFit=()=>{const w=$('#dp'),t=w&&w.querySelector('table');if(!t)return;w.style.maxHeight='';if(t.rows.length>21){let h=0;for(let i=0;i<21;i++)h+=t.rows[i].offsetHeight;w.style.maxHeight=(h+2)+'px'}};
  $('#dpq').oninput=()=>{$('#dpx').hidden=!$('#dpq').value;dpDraw()};$('#dpx').onclick=()=>{$('#dpq').value='';$('#dpx').hidden=true;dpDraw();$('#dpq').focus()};
  const loadDp=async()=>{const el=$('#dp');dpHl=hlKK;hlKK=null;
   const q=c=>sb.from('keluarga').select(c).eq('kelurahan',S.kelurahan).eq('rw',S.rw).eq('rt',S.rt).order('nama_kk').limit(500);
@@ -921,7 +942,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
   const d=r.data||[];
   const jw=d.some(x=>!(x.anggota&&x.anggota[0]))?'-':d.reduce((a,x)=>a+x.anggota[0].count+1,0);
   $('#dpc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#e8eafc;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';dpD=d;dpDraw()};
- const syncAdd=()=>{const on=canAdd();$('#tb2').hidden=!on};
+ const syncAdd=()=>{const on=canAdd();$('#tb2').hidden=!on;if(on!=!!$('#tb'))refresh()};
  setInterval(syncAdd,30000);loadDp();
  // --- Nomor HP KK tidak boleh sama (dicek sejak diisi, dan sekali lagi saat simpan)
  const dupHp=async hp=>{if(!hp)return false;const cur=ed||$('#nkk').value.trim();let q=sb.from('keluarga').select('nkk,nama_kk,kelurahan,rw,rt').eq('hp',hp);if(cur)q=q.neq('nkk',cur);
@@ -1016,9 +1037,10 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  else if(phase=='belum')sect='<div class="card"><p class="hint">Tahapan pemilihan belum dimulai.</p></div>';
  else sect='<div class="card"><p class="hint">Pemungutan suara di lingkungan ini sedang tidak berlangsung.</p></div>';
  if(anyP&&!open)sect=extra+sect;
- const WM=[['pencalonan','Informasi Calon',I_CLN,'#7b3fa0'],['pemilihan','Ayo Memilih',I_PIL,'#c0392b'],['penghitungan','Perolehan Suara',I_HIT,'#2e8b57'],['penetapan','Calon Terpilih',I_TET,'#d9822b']];
+ const I_HOME='<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>';
+ const WM=[['info','Informasi Data Pemilih',I_USR,'#0f8b8d'],['pencalonan','Informasi Calon',I_CLN,'#7b3fa0'],['pemilihan','Ayo Memilih',I_PIL,'#c0392b'],['penghitungan','Perolehan Suara',I_HIT,'#2e8b57'],['penetapan','Calon Terpilih',I_TET,'#d9822b'],['keluarga','Data Keluarga',I_HOME,'#1f6fb2']];
  const wbtn=WM.filter(([k])=>(entered(tlW,k)&&(k!='pemilihan'||phase=='aktif'))||(k=='pemilihan'&&open)).map(x=>x[0]);
- const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
+ const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)||k=='info'||k=='keluarga'?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
  const cf=(l,v,c='')=>v?`<div class="cf ${c}"><small>${l}</small><p>${esc(v)}</p></div>`:'';
  const cn=x=>`<div class="card"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div>`;
  const cb=(t,l)=>`<h3 style="margin:16px 0 8px">${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint">Belum ada calon terdaftar.</p>');
@@ -1038,10 +1060,13 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  const tnn=['RW','RT'].map(j=>tR[j].n||'').join('')+(anyP&&!rok?`<p class="hint">${psu?'Calon terpilih ditampilkan setelah PSU selesai.':'Calon terpilih ditampilkan setelah tahapan pemilihan selesai.'}</p>`:'');
  const tAny=tR.RW.x||tR.RT.x,tHtml=(tAny?`<div class="cel" style="display:flex;align-items:center;justify-content:center;gap:14px;text-align:left"><div style="color:var(--gold);display:grid">${ic(I_TRO,48)}</div><div><h2>Selamat!</h2><p style="margin:2px 0 0">kepada calon terpilih.</p></div></div>`:'')+tCard('RW')+tCard('RT')+(tnn?'<div class="card">'+tnn+'</div>':'');
  const wtet=`<div class="pnl hide" id="p_tetap">${tHtml||'<div class="card"><p class="hint">Calon terpilih belum dapat ditampilkan.</p></div>'}</div>`;
- A.innerHTML=head(esc(S.nama_kk),'NIK <span id="nk">'+mask+'</span><button class="eb" id="ne" type="button" aria-label="Tampilkan NIK">'+ic(EYE,18)+'</button>',`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Standar Pelayanan',PROS_WRG,I_SHD)}${tlCard(tlHtml(tl))}${wmenu}<div class="pnl${wbtn.length?' hide':''}" id="p_sect">${wbtn.length?pelHtml(tl):''}${sect}</div>${wcal}${wdat}${wtet}
- <section class="flat"><h3>${ic(I_USR,20)}Data Keluarga</h3><div class="scroll"><table class="ht"><tr><th>Nama</th><th>Hubungan</th><th class="ag">Usia</th></tr>${(data||[]).map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.hubungan||'')}</td><td class="ag">${usia(r.tgl_lahir)??'-'}</td></tr>`).join('')}</table></div></section></main>`;
+ const kt=`<div class="scroll"><table class="ht"><tr><th>Nama</th><th>Hubungan</th><th class="ag">Usia</th></tr>${(data||[]).map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.hubungan||'')}</td><td class="ag">${usia(r.tgl_lahir)??'-'}</td></tr>`).join('')}</table></div>`;
+ A.innerHTML=head(esc(S.nama_kk),'NIK <span id="nk">'+mask+'</span><button class="eb" id="ne" type="button" aria-label="Tampilkan NIK">'+ic(EYE,18)+'</button>',`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Standar Pelayanan',PROS_WRG,I_SHD,4)}${tlCard(tlHtml(tl))}${wmenu}<div class="pnl${wbtn.length?' hide':''}" id="p_sect">${wbtn.length?pelHtml(tl):''}${sect}</div>${wcal}${wdat}${wtet}
+ <section class="flat dkel"><h3>${ic(I_USR,20)}Data Keluarga</h3>${kt}</section><div class="pnl hide" id="p_info"></div><div class="pnl hide" id="p_kel"><div class="card"><h3 style="margin:0 0 12px">Data Keluarga</h3>${kt}</div></div></main>`;
  $('#ne').onclick=()=>{vis=!vis;$('#nk').textContent=vis?(S.nik_kk||'-'):mask;$('#ne').innerHTML=ic(vis?EYEOFF:EYE,18);$('#ne').setAttribute('aria-label',vis?'Sembunyikan NIK':'Tampilkan NIK')};
- $('#sel').onclick=()=>{offMenu();openSub('Informasi Data Pemilih','<div class="card"><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select><div id="pdc" style="margin-top:12px"></div><div class="scroll" id="pdl"></div></div>');$('#pds').onchange=loadPd;loadPd()};
+ const INFO_HTML='<div class="card"><div class="wil"><div><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select></div><div id="pdc"></div></div><div class="scroll" id="pdl"></div></div>';
+ const openInfo=()=>{$('#p_info').innerHTML=INFO_HTML;$('#pds').onchange=loadPd;loadPd()};
+ $('#sel').onclick=()=>{offMenu();$('#p_info').innerHTML='';openSub('Informasi Data Pemilih',INFO_HTML);$('#pds').onchange=loadPd;loadPd()};
  const loadPd=async()=>{const el=$('#pdl'),rtOnly=$('#pds').value=='rt';el.innerHTML='Memuat...';
   const q=c=>{let r=sb.from('keluarga').select(c).eq('kelurahan',S.kelurahan).eq('rw',S.rw);if(rtOnly)r=r.eq('rt',S.rt);return r.order('nama_kk').limit(500)};
   let r=await q('nkk,nama_kk,alamat,pass_hash,anggota(count)');if(r.error)r=await q('nkk,nama_kk,alamat,pass_hash');
@@ -1050,7 +1075,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
   const jw=d.some(x=>!(x.anggota&&x.anggota[0]))?'-':d.reduce((a,x)=>a+x.anggota[0].count+1,0);
   $('#pdc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#e8eafc;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';
   el.innerHTML=d.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+d.map(x=>`<tr${x.nkk==S.nkk?' class="me"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':'<p class="hint">Belum ada data pemilih.</p>'};
- {bindMenu(k=>openF(({pemilihan:'Pemilihan Calon',penghitungan:'Hasil Perolehan Suara'})[k]||WM.find(x=>x[0]==k)[1],$(k=='pencalonan'?'#p_pencalonan':k=='penghitungan'?'#p_hitung':k=='penetapan'?'#p_tetap':'#p_sect')));}
+ {bindMenu(k=>{openF(({pemilihan:'Pemilihan Calon',penghitungan:'Hasil Perolehan Suara',info:'Informasi Data Pemilih',keluarga:'Data Keluarga'})[k]||WM.find(x=>x[0]==k)[1],$(k=='pencalonan'?'#p_pencalonan':k=='penghitungan'?'#p_hitung':k=='penetapan'?'#p_tetap':k=='info'?'#p_info':k=='keluarga'?'#p_kel':'#p_sect'));if(k=='info')openInfo()})}
  const vt=$('#vt');
  if(vt){const need=[st.boleh_rt&&'RT',st.boleh_rw&&'RW'].filter(Boolean),vs=$('#vs');
   vt.onclick=e=>{const c=e.target.closest('.cc');if(!c)return;const j=c.dataset.j,on=c.getAttribute('aria-pressed')=='true';
