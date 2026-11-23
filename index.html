@@ -305,6 +305,41 @@ main:has(#ft) .grid2{grid-template-columns:1fr}
 .car-t[data-per="4"]>div{flex:0 0 calc((100% - 36px)/4)}
 .car-t[data-per="4"] img{max-height:46vh}
 }
+
+/* ===== Revisi PC/tablet ===== */
+@media(min-width:768px){
+/* Header: grafik lebih besar */
+header.top{padding-top:28px;padding-bottom:62px}
+.hdc{gap:0 40px}.hdc svg{width:156px;height:156px}
+.hdr .legend{font-size:17px}.hdr .legend span,.hdr .legend b{margin:5px 0}.hdr .dot{width:14px;height:14px}
+.hdr .btn{font-size:15px;padding:9px 20px;margin-top:12px}
+/* Kelurahan - Pendata: cari (kiri) + tombol simpan sebaris */
+#p_pendata:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 14px;align-items:center}
+#p_pendata>*{grid-column:1/-1;min-width:0}
+#p_pendata>.srch{grid-column:1;grid-row:2;width:auto;margin:16px 0 10px}
+#p_pendata>.pbt{grid-column:2;grid-row:2;display:flex;gap:10px;margin:16px 0 10px}
+#p_pendata>.pbt .btn{width:auto;white-space:nowrap}
+/* Kelurahan - Data Pemilih: 4 tombol RT sebaris */
+#p_pemilih:not(.hide){grid-template-columns:minmax(0,2fr) minmax(0,3fr)}
+#vres>#vtabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* Pendata: Tambah Data + cari sebaris; form Input Data KK (25%) sebaris dengan tabel (75%) */
+main:has(#tb2){display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,3fr);gap:0 16px;align-items:start}
+main:has(#tb2)>*{grid-column:1/-1;min-width:0}
+main:has(#tb2)>#tb2{grid-column:1;grid-row:3;margin:0 0 16px;padding:11px 14px;font-size:15px}
+main:has(#tb2)>#dpsec{display:contents}
+main:has(#tb2)>#dpsec>#dps{grid-column:2;grid-row:3;margin:0 0 16px}
+main:has(#tb2)>#dpsec>h3{grid-column:1/-1;grid-row:4}
+main:has(#tb2)>#dpsec>#dpc{grid-column:1/-1;grid-row:5}
+main:has(#tb2)>#dpsec>#dp{grid-column:1/-1;grid-row:6}
+main:has(#tb2)>#pd:not(.hide){grid-column:1;grid-row:4/span 3;margin:0}
+main:has(>#pd:not(.hide))>#dpsec>h3,main:has(>#pd:not(.hide))>#dpsec>#dpc,main:has(>#pd:not(.hide))>#dpsec>#dp{grid-column:2}
+main:has(#tb2)>#pd .grid2{grid-template-columns:1fr}
+}
+/* Fitur Utama: kartu isi sejajar dengan tombol pertama */
+@media(min-width:900px){
+main:has(#menu)>section:has(#menu)>h3{height:28px;line-height:28px;margin:0 0 12px}
+main:has(#menu)>.pnl,main:has(#menu):not(:has(>.pnl:not(.hide)))::after{margin-top:40px}
+}
 </style></head><body>
 
 <div id="splash" class="abs">
@@ -564,7 +599,7 @@ const pmDone=rows=>{const p=rows.filter(t=>kind(t)=='pemilihan');return p.length
 const stEnd=(rows,k)=>{const r=rows.filter(t=>kind(t)==k);return r.length?Math.max(...r.map(t=>+tEnd(t))):null};
 const ended=(rows,k)=>{const e=stEnd(rows,k);return e!=null&&Date.now()>e};
 const mLabel=(k,t,rows)=>k=='pencalonan'&&ended(rows,'pencalonan')?'Daftar Calon':t;
-const menuShow=(k,cur,rows)=>k=='pemilih'?entered(rows,'pendataan')&&!ended(rows,'penetapan'):k=='pendata'?cur.has('pendataan'):k=='pencalonan'?entered(rows,'pencalonan'):k=='penghitungan'?hitOn(rows):k=='penetapan'?entered(rows,'penetapan'):cur.has(UN[k])||(['pemilihan','penghitungan','penetapan'].includes(k)&&entered(rows,k));
+const menuShow=(k,cur,rows)=>k=='tahapan'?true:k=='pemilih'?entered(rows,'pendataan')&&!ended(rows,'penetapan'):k=='pendata'?cur.has('pendataan'):k=='pencalonan'?entered(rows,'pencalonan'):k=='penghitungan'?hitOn(rows):k=='penetapan'?entered(rows,'penetapan'):cur.has(UN[k])||(['pemilihan','penghitungan','penetapan'].includes(k)&&entered(rows,k));
 const menuHtml=(M,rows)=>{const cur=curKinds(rows);return `<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap" id="menu">${M.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${menuShow(k,cur,rows)?'':' disabled'}>${ic(i,26)}${mLabel(k,t,rows)}</button>`).join('')}</div></section>`};
 const menuVis=rows=>{const M0=typeof KM!='undefined'?KM:[];const cur=curKinds(rows);document.querySelectorAll('#menu button').forEach(b=>{b.disabled=!menuShow(b.dataset.k,cur,rows);const L=mLabel(b.dataset.k,(M0.find(x=>x[0]==b.dataset.k)||[])[1],rows);if(L&&b.lastChild&&b.lastChild.nodeType==3)b.lastChild.nodeValue=L})};
 const bindMenu=cb=>{$('#menu').onclick=e=>{const bt=e.target.closest('button');if(!bt)return;document.querySelectorAll('#menu button').forEach(b=>b.classList.toggle('on',b==bt));cb(bt.dataset.k)}};
@@ -580,11 +615,11 @@ function fmtR2(a,b){const x=a.split('-'),y=b.split('-'),yy=v=>v.slice(2),dd=v=>S
  if(a==b)return dd(x[2])+'/'+x[1]+'/'+yy(x[0]);
  if(x[0]==y[0]&&x[1]==y[1])return dd(x[2])+' - '+dd(y[2])+'<br>'+y[1]+'/'+yy(y[0]);
  return dd(x[2])+'/'+x[1]+(x[0]==y[0]?'':'/'+yy(x[0]))+' -<br>'+dd(y[2])+'/'+y[1]+'/'+yy(y[0])}
-const KM=[['pendata','Pendata',PG,'#1f6fb2'],['pemilih','Data Pemilih',I_USR,'#0f8b8d'],['pencalonan','Pencalonan',I_CLN,'#7b3fa0'],['penghitungan','Penghitungan',I_HIT,'#2e8b57'],['penetapan','Penetapan',I_TET,'#d9822b']];
+const KM=[['tahapan','Timeline',I_CAL,'#4547b5'],['pendata','Pendata',PG,'#1f6fb2'],['pemilih','Data Pemilih',I_USR,'#0f8b8d'],['pencalonan','Pencalonan',I_CLN,'#7b3fa0'],['penghitungan','Penghitungan',I_HIT,'#2e8b57'],['penetapan','Penetapan',I_TET,'#d9822b']];
 const tbBtn=()=>`<button class="btn alt sm tbtn" id="tbtn" type="button">${ic(I_CAL,15)}<span id="tbt">Edit</span></button>`;
 
 async function kel(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurahan);
- A.innerHTML=head('Kelurahan '+esc(S.kelurahan),'Kec. '+esc(S.kecamatan)+' · '+esc(S.kota),`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Prosedur Kerja',PROS_KEL,CLP,4)}${tlCard(tlHtml(tl,1),tbBtn())}${menuHtml(KM,tl)}
+ A.innerHTML=head('Kelurahan '+esc(S.kelurahan),'Kec. '+esc(S.kecamatan)+' · '+esc(S.kota),`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Prosedur Kerja',PROS_KEL,CLP,4)}${tlCard(tlHtml(tl,1))}${menuHtml(KM,tl)}
  <div class="card pnl hide" id="p_pendata"><h3 id="pt" class="hide"></h3><div class="pf"><div class="r3">
   <div><label>RW</label><input id="rw" class="num" inputmode="numeric" maxlength="3" placeholder="01"></div>
   <div><label>RT</label><input id="rt" class="num" inputmode="numeric" maxlength="3" placeholder="01"></div>
@@ -603,14 +638,14 @@ async function kel(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurah
  <div class="pnl hide" id="p_pemilih"><div class="card"><div class="dua"><div><label for="vrw">RW</label><select id="vrw"></select></div><div><label>Jumlah KK</label><div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:8px;border:1.5px solid #1d7a4a;background:#1d7a4a;color:#fff;font-weight:600"><span style="display:grid;flex:none">${ic(I_USR,18)}</span><span id="vkn">&ndash;</span></div></div></div></div><div id="vres"></div></div>
  <div class="pnl hide" id="p_daftar"><div class="card"><div class="dua"><div><label for="lrw">RW</label><select id="lrw"></select></div><div><label for="lrt">RT</label><select id="lrt" disabled></select></div></div></div><div id="lres"></div></div></main>`;
  bindMenu(async k=>{if(k=='pencalonan'&&ended(tr,'pencalonan')){openF('Daftar Calon',$('#p_daftar'));await pair('l',()=>showDaftar());$('#lres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat daftar calon.</p>';return}
-  openF(({pendata:'Pendata Warga',pencalonan:'Pendaftaran Calon',penghitungan:pmDone(tr)?'Hasil Perolehan Suara':'Perolehan Suara (Sementara)'})[k]||KM.find(x=>x[0]==k)[1],$('#p_'+k));
+  openF(({tahapan:'Timeline Tahapan',pendata:'Pendata Warga',pencalonan:'Pendaftaran Calon',penghitungan:pmDone(tr)?'Hasil Perolehan Suara':'Perolehan Suara (Sementara)'})[k]||KM.find(x=>x[0]==k)[1],$('#p_'+k));
   if(k=='pemilih'){const {data}=await sb.from('petugas').select('rt,rw').eq('kelurahan',S.kelurahan);vPet=data||[];vRt='';const w=$('#vrw');w.innerHTML=opts([...new Set(vPet.map(r=>r.rw))].sort());w.onchange=()=>{vRt='';showPemilih()};$('#vkn').innerHTML='&ndash;';$('#vres').innerHTML='<p class="hint">Pilih RW untuk melihat jumlah dan daftar pemilih.</p>'}
+  if(k=='tahapan')lt();
   if(k=='pendata'){lp();$('#rw').focus()}
   if(k=='pencalonan'){$('#crw').focus();await pair('c',()=>{loadCalon('RW');loadCalon('RT');calAct()});loadCalon('RW');loadCalon('RT');calAct()}
   if(k=='penghitungan'){$('#pelk').innerHTML=pelHtml(tr);pelTick();await pair('g',()=>showHitung());$('#gres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat perolehan suara.</p>'}
   if(k=='penetapan'){await pair('t',()=>showTetap());$('#tres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat calon terpilih.</p>'}});
  $('#sel').onclick=async()=>{offMenu();openSub('Informasi Data Warga','<div class="card"><div class="dua"><div><label for="drw">RW</label><select id="drw"></select></div><div><label for="drt">RT</label><select id="drt" disabled></select></div></div><div id="dres"></div></div>');await pair('d',()=>showData());$('#dres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat jumlah warga.</p>'};
- $('#tbtn').onclick=()=>{offMenu();openSub('Timeline Tahapan',$('#p_tahapan'));lt()};
  // --- Pendata warga (registrasi petugas)
  let rows=[],ed=null,lastRw='',hl=null;
  const lp=async()=>{const {data}=await sb.from('petugas').select('*').eq('kelurahan',S.kelurahan).order('created_at',{ascending:false});rows=data||[];draw()};
@@ -801,7 +836,7 @@ const calonCard=j=>`<div class="card" id="cc${j}"><div class="rowh clh"><h3>Calo
 let hlKK=null;
 async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurahan);
  const canAdd=()=>tl.some(t=>kind(t)=='pendataan'&&aktif(t));
- A.innerHTML=head(esc(S.nama),'Pendata RT '+esc(S.rt)+'/RW '+esc(S.rw)+' '+esc(S.kelurahan),`<div class="hd" id="dn">${hdrP(l,p,canAdd())}</div>`,'ttl')+`<main>${prosHtml('Prosedur Kerja',PROS_PND,CLP)}${tlCard(tlHtml(tl))}<button class="btn alt wide" id="tb2" type="button"${canAdd()?'':' hidden'}>${ic(PG,20)}Tambah Data Pemilih</button>
+ A.innerHTML=head(esc(S.nama),'Pendata RT '+esc(S.rt)+'/RW '+esc(S.rw)+' '+esc(S.kelurahan),`<div class="hd" id="dn">${hdrP(l,p,canAdd())}</div>`,'ttl')+`<main>${prosHtml('Prosedur Kerja',PROS_PND,CLP,4)}${tlCard(tlHtml(tl))}<button class="btn alt wide" id="tb2" type="button"${canAdd()?'':' hidden'}>${ic(PG,20)}Tambah Data</button>
  <section class="flat" id="dpsec"><h3>${ic(I_USR,20)}Data Pemilih</h3><div id="dpc"></div><div class="srch" id="dps" hidden><span class="si">${ic('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',18)}</span><input id="dpq" autocomplete="off" placeholder="Cari nama KK atau alamat" aria-label="Cari pemilih"><button type="button" class="qx" id="dpx" hidden aria-label="Hapus pencarian">${ic('<path d="M6 6l12 12M18 6L6 18"/>',18)}</button></div><div class="scroll" id="dp"></div></section>
  <div class="card hide" id="pd"><h3 id="pt" class="hide"></h3><div class="rowh" style="margin-bottom:6px"><p class="hint" style="margin:0">Semua isian wajib diisi.</p><button class="btn ghost sm" id="cx" type="button">Batal</button></div><div class="grid2">
  <div><label>NKK</label><input id="nkk" class="num" inputmode="numeric" maxlength="16"></div><div><label>Nama Kepala Keluarga</label><input id="nkp"></div>
@@ -817,11 +852,12 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  // --- Form tambah / edit
  const renum=()=>[...ml.children].forEach((d,i)=>d.querySelector('.mh b').textContent='Anggota '+(i+1));
  const vals=()=>[...$('#pd').querySelectorAll('input,select')].map(x=>x.value).join('|');
+ const openPd=cfg=>{if(wideOn()){const f=$('#pd');f.classList.remove('hide');$('#pt').classList.remove('hide');f.scrollIntoView({behavior:'smooth',block:'nearest'})}else{openSub('Input Data KK',$('#pd'),cfg);$('#pt').classList.add('hide')}};
  const open=(r,ang)=>{if(!r&&!canAdd()){toast('Tambah data hanya tersedia pada tahapan Pendataan.');return}ed=r?r.nkk:null;old=ang||[];ml.innerHTML='';setAdd(null);['nkk','nkp','nkik','al','hk'].forEach(i=>$('#'+i).value='');
   if(r){$('#nkk').value=r.nkk;$('#nkp').value=r.nama_kk||'';$('#nkik').value=r.nik_kk||'';$('#al').value=r.alamat||'';$('#hk').value=r.hp||'';(old.length?old:[{}]).forEach(a=>ml.append(memRow(a)))}
-  renum();$('#nkk').disabled=!!r;$('#pt').textContent=r?'Edit Data Keluarga':'Tambah Data Warga';$('#sv').textContent=r?'Perbarui':'Simpan';$('#m').textContent='';
-  openSub('Input Data KK',$('#pd'),{onClose:reset,guard:()=>{if(vals()==base)return false;askConfirm('Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',()=>{base=vals();history.back()},'Ya, batalkan');return true}});base=vals();upd();(r?$('#nkp'):$('#nkk')).focus()};
- const reset=()=>{ed=null;old=[];ml.innerHTML='';document.querySelectorAll('#pd .nkm').forEach(x=>x.textContent='');$('#m').textContent='';$('#nkk').disabled=false;setAdd(null)};const close=()=>history.back();
+  renum();$('#nkk').disabled=!!r;$('#pt').textContent=r?'Edit Data Keluarga':'Input Data KK';$('#sv').textContent=r?'Perbarui':'Simpan';$('#m').textContent='';
+  openPd({onClose:reset,guard:()=>{if(vals()==base)return false;askConfirm('Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',()=>{base=vals();history.back()},'Ya, batalkan');return true}});base=vals();upd();(r?$('#nkp'):$('#nkk')).focus()};
+ const reset=()=>{ed=null;old=[];ml.innerHTML='';document.querySelectorAll('#pd .nkm').forEach(x=>x.textContent='');$('#m').textContent='';$('#nkk').disabled=false;setAdd(null)};const close=()=>{if(subOpen)history.back();else{reset();$('#pd').classList.add('hide')}};
  const cancel=()=>{if(vals()!=base)askConfirm(ed?'Batalkan perubahan?':'Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',close,'Ya, batalkan');else close()};
  $('#dn').onclick=e=>{if(e.target.closest('#tb'))open()};
  $('#tb2').onclick=()=>open();
@@ -835,7 +871,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  // --- NKK sudah ada = tambah anggota keluarga; NIK ganda ditolak
  const setAdd=r=>{addMode=r;[['nkp','nama_kk'],['nkik','nik_kk'],['al','alamat'],['hk','hp']].forEach(([i,f])=>{const e=$('#'+i);e.disabled=!!r;e.value=r?(r[f]||''):''});
   const n=$('#nh');n.classList.toggle('hide',!r);n.textContent=r?'NKK sudah terdaftar atas nama '+r.nama_kk+' ('+r.jml+' anggota tercatat). Data keluarga tidak diubah; isi hanya anggota keluarga yang baru.':'';
-  const h=document.querySelector('#sub .sh h2');if(h)h.textContent=r?'Input Anggota KK':'Input Data KK'};
+  const h=document.querySelector('#sub .sh h2');if(h)h.textContent=r?'Input Anggota KK':'Input Data KK';if(!subOpen)$('#pt').textContent=r?'Input Anggota KK':(ed?'Edit Data Keluarga':'Input Data KK')};
  const chkNkk=async()=>{const gv=()=>$('#nkk').value.replace(/\D/g,''),v=gv(),m=$('#m');if(ed||v.length!=16){if(addMode)setAdd(null);return}
   const {data}=await sb.from('keluarga').select('nkk,nama_kk,nik_kk,alamat,hp,kelurahan,rw,rt').eq('nkk',v).limit(1);if(gv()!=v)return;const d=data&&data[0];
   if(!d){if(addMode)setAdd(null);return}
