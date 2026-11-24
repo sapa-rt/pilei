@@ -412,11 +412,20 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 .hdr .legend{font-size:17px}
 }
 
-/* ===== Judul kartu berlatar berbeda (semua halaman) ===== */
-.card>h3,.card>.rowh.clh{margin:-18px -18px 14px!important;padding:11px 18px;background:linear-gradient(135deg,#e4e6fa,#eef0fd);border-bottom:1px solid #d3d6f1;color:var(--ink);border-radius:calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0}
-.card>.rowh.clh{padding:8px 18px;border-bottom:0}
-.card>.rowh.clh h3{color:var(--ink)}
-.card.pel>h3{background:linear-gradient(135deg,#d2ebdc,#e2f3e8);border-bottom-color:#bfdccb;color:#1f5d3a}
+/* ===== Judul kartu: latar sesuai warna tombol Fitur Utama (per fitur) ===== */
+#p_tahapan{--tc:#4547b5}#p_pendata,#p_kel{--tc:#1f6fb2}#p_pemilih,#p_info{--tc:#0f8b8d}
+#p_pencalonan,#p_daftar{--tc:#7b3fa0}#p_penghitungan,#p_hitung{--tc:#2e8b57}
+#p_penetapan,#p_tetap{--tc:#d9822b}#p_sect{--tc:#c0392b}
+.card>h3,.card>.rowh.clh{margin:-18px -18px 14px!important;padding:11px 18px;background:var(--tc,var(--teal));border-bottom:0;color:#fff;border-radius:calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0}
+.card>.rowh.clh{padding:8px 18px}
+.card>.rowh.clh h3{color:#fff}
+.card>.rowh.clh .chev{background:rgba(255,255,255,.25)}
+.card.pel>h3{background:var(--tc,var(--teal));color:#fff}
+
+/* ===== Logo splash: lebih kecil di HP, lebih besar di tablet/PC ===== */
+#logo{width:min(190px,50vw);height:min(190px,50vw)}
+@media(min-width:768px){#logo{width:min(340px,45vh);height:min(340px,45vh)}}
+@media(min-width:1024px){#logo{width:min(420px,50vh);height:min(420px,50vh)}}
 </style></head><body>
 
 <div id="splash" class="abs">
