@@ -391,24 +391,25 @@ main:has(>#pd:not(.hide))>#dpsec>.dph{grid-column:2}
 .exl{display:inline;font-size:14px;font-weight:600;color:#fff;line-height:1}
 }
 
-/* ===== Header PC/tablet: 3 kolom (45% logo+nama | 45% chart+label | 10% exit) ===== */
+/* ===== Header PC/tablet: 3 kolom (35% logo+nama | 35% chart+label | 30% exit) ===== */
 @media(min-width:768px){
-header.top{display:grid;grid-template-columns:45% 45% 10%;align-items:center}
+header.top{display:grid;grid-template-columns:35% 35% 30%;align-items:center}
 header.top .row{display:contents}
 header.top .row>div:first-child{grid-column:1;grid-row:1;min-width:0;flex:none}
 header.top .hd{grid-column:2;grid-row:1;margin-top:0;min-width:0}
 header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;position:relative;z-index:1}
-.hdc{gap:0 24px}.hdc svg{width:136px;height:136px}
-.hdr .legend{font-size:15px}
-/* tablet: kolom exit sempit -> ikon di atas, teks di bawah */
-.exit{width:100%;height:auto;padding:8px 2px;border-radius:16px;flex-direction:column;gap:3px}
-.exl{font-size:12px}
-}
-@media(min-width:1024px){
-.hdc{gap:0 40px}.hdc svg{width:156px;height:156px}
-.hdr .legend{font-size:17px}
+.hdc{gap:0 16px}.hdc svg{width:112px;height:112px}
+.hdr .legend{font-size:13px}
 .exit{width:auto;height:42px;padding:0 14px;border-radius:999px;flex-direction:row;gap:8px;white-space:nowrap}
 .exl{font-size:14px}
+}
+@media(min-width:1024px){
+.hdc{gap:0 24px}.hdc svg{width:136px;height:136px}
+.hdr .legend{font-size:15px}
+}
+@media(min-width:1280px){
+.hdc{gap:0 40px}.hdc svg{width:156px;height:156px}
+.hdr .legend{font-size:17px}
 }
 </style></head><body>
 
