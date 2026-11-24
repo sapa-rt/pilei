@@ -1067,7 +1067,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  else sect='<div class="card"><p class="hint">Pemungutan suara di lingkungan ini sedang tidak berlangsung.</p></div>';
  if(anyP&&!open)sect=extra+sect;
  const I_HOME='<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>';
- const WM=[['info','Informasi Data Pemilih',I_USR,'#0f8b8d'],['pencalonan','Informasi Calon',I_CLN,'#7b3fa0'],['pemilihan','Ayo Memilih',I_PIL,'#c0392b'],['penghitungan','Perolehan Suara',I_HIT,'#2e8b57'],['penetapan','Calon Terpilih',I_TET,'#d9822b'],['keluarga','Data Keluarga',I_HOME,'#1f6fb2']];
+ const WM=[['info','Data Pemilih',I_USR,'#0f8b8d'],['pencalonan','Informasi Calon',I_CLN,'#7b3fa0'],['pemilihan','Ayo Memilih',I_PIL,'#c0392b'],['penghitungan','Perolehan Suara',I_HIT,'#2e8b57'],['penetapan','Calon Terpilih',I_TET,'#d9822b'],['keluarga','Data Keluarga',I_HOME,'#1f6fb2']];
  const wbtn=WM.filter(([k])=>(entered(tlW,k)&&(k!='pemilihan'||phase=='aktif'))||(k=='pemilihan'&&open)).map(x=>x[0]);
  const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)||k=='info'||k=='keluarga'?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
  const cf=(l,v,c='')=>v?`<div class="cf ${c}"><small>${l}</small><p>${esc(v)}</p></div>`:'';
