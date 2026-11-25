@@ -427,6 +427,12 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 /* Informasi Calon (Warga): satu kartu per jabatan, calon dipisah garis */
 .cnx+.cnx{border-top:1.5px solid var(--line);margin-top:16px;padding-top:16px}
 #p_pencalonan>.card.wc:first-child{width:auto}
+/* HP: dua tombol sebaris (Calon RW / Calon RT) membuka kartu calon; PC/tablet: tombol disembunyikan, kedua kartu tampil (RW lalu RT) */
+.wcb{display:flex;gap:10px;margin:0 0 14px}
+.wcb button{flex:1;min-width:0;padding:12px 8px;border-radius:14px;border:2px solid var(--c);background:#fff;color:var(--c);font:inherit;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
+.wcb button.on{background:var(--c);color:#fff}
+@media(max-width:767px){#p_pencalonan .card.wc:not(.on){display:none}}
+@media(min-width:768px){.wcb{display:none}}
 
 /* ===== Logo splash: lebih kecil di HP, lebih besar di tablet/PC ===== */
 #logo{width:min(190px,50vw);height:min(190px,50vw)}
@@ -1114,8 +1120,8 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)||k=='info'||k=='keluarga'?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
  const cf=(l,v,c='')=>v?`<div class="cf ${c}"><small>${l}</small><p>${esc(v)}</p></div>`:'';
  const cn=x=>`<div class="cnx"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div>`;
- const cb=(t,l)=>`<div class="card wc"><h3>${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint" style="margin:0">Belum ada calon terdaftar.</p>')+`</div>`;
- const wcal=`<div class="pnl hide" id="p_pencalonan">${cb('Calon Ketua RT '+esc(S.rt),rtL)}${cb('Calon Ketua RW '+esc(S.rw),rwL)}</div>`;
+ const cb=(j,t,l)=>`<div class="card wc" data-j="${j}"><h3>${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint" style="margin:0">Belum ada calon terdaftar.</p>')+`</div>`;
+ const wcal=`<div class="pnl hide" id="p_pencalonan"><div class="wcb"><button type="button" data-j="RW" aria-pressed="false" style="--c:#c0392b">Calon RW ${esc(S.rw)}</button><button type="button" data-j="RT" aria-pressed="false" style="--c:#2e8b57">Calon RT ${esc(S.rt)}</button></div>${cb('RW','Calon Ketua RW '+esc(S.rw),rwL)}${cb('RT','Calon Ketua RT '+esc(S.rt),rtL)}</div>`;
 
  const wvm={};if(rk)[...(rk.rt||[]),...(rk.rw||[])].forEach(x=>wvm[x.id]=x.n);const rok=!!rk&&!psu;
  const whit=['RW','RT'].map(j=>mj[j]!='pemilihan'?`<div class="card"><p class="hint">${esc(un[j])}: ${mj[j]=='aklamasi'?'hanya satu calon, <b>'+esc(jl[j][0].nama)+'</b> (terpilih aklamasi). Tidak ada pemilihan dan penghitungan, hanya penetapan.':'tidak ada calon yang terdaftar: tidak ada pemilihan, penghitungan, dan penetapan.'}</p></div>`:rok?'<div class="card hs">'+hasil('Pemilihan Ketua '+j+' '+esc(j=='RT'?S.rt:S.rw),jl[j].map(x=>({...x,suara:wvm[x.id]||0})),stat3(rk[j.toLowerCase()+'_kk'],rk[j.toLowerCase()+'_memilih']))+'</div>':'').join('');
@@ -1169,5 +1175,11 @@ tlObs.observe($('#app'),{childList:true,subtree:true});addEventListener('resize'
 // Judul kartu: "RW" -> latar merah, "RT" -> latar hijau (otomatis, termasuk kartu yang dibuat belakangan)
 (()=>{let q=0;const tint=()=>{q=0;document.querySelectorAll('.card>h3,.card>.rowh.clh').forEach(e=>{const t=e.textContent,w=/\bRW\b/.test(t),r=/\bRT\b/.test(t);e.classList.toggle('trw',w&&!r);e.classList.toggle('trt',r&&!w)})};
 new MutationObserver(()=>{if(!q)q=requestAnimationFrame(tint)}).observe(document.body,{childList:true,subtree:true,characterData:true});tint()})();
+</script>
+<script>
+// Informasi Calon (Warga, HP): tombol Calon RW / Calon RT membuka kartu masing-masing (satu kartu terbuka; klik lagi untuk menutup)
+document.addEventListener('click',e=>{const b=e.target.closest('.wcb button');if(!b)return;const p=b.closest('#p_pencalonan'),t=p&&p.querySelector('.card.wc[data-j="'+b.dataset.j+'"]');if(!t)return;const was=t.classList.contains('on');
+p.querySelectorAll('.card.wc').forEach(c=>c.classList.remove('on'));p.querySelectorAll('.wcb button').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')});
+if(!was){t.classList.add('on');b.classList.add('on');b.setAttribute('aria-pressed','true');t.scrollIntoView({behavior:'smooth',block:'nearest'})}});
 </script>
 </body></html>
