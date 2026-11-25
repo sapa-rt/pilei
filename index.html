@@ -421,6 +421,12 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 .card>.rowh.clh h3{color:#fff}
 .card>.rowh.clh .chev{background:rgba(255,255,255,.25)}
 .card.pel>h3{background:var(--tc,var(--teal));color:#fff}
+/* Judul kartu berisi "RW" = merah, "RT" = hijau (kelas dipasang otomatis oleh skrip tintTitles) */
+.card>h3.trw,.card>.rowh.clh.trw{background:#c0392b!important}
+.card>h3.trt,.card>.rowh.clh.trt{background:#2e8b57!important}
+/* Informasi Calon (Warga): satu kartu per jabatan, calon dipisah garis */
+.cnx+.cnx{border-top:1.5px solid var(--line);margin-top:16px;padding-top:16px}
+#p_pencalonan>.card.wc:first-child{width:auto}
 
 /* ===== Logo splash: lebih kecil di HP, lebih besar di tablet/PC ===== */
 #logo{width:min(190px,50vw);height:min(190px,50vw)}
@@ -1107,8 +1113,8 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  const wbtn=WM.filter(([k])=>(entered(tlW,k)&&(k!='pemilihan'||phase=='aktif'))||(k=='pemilihan'&&open)).map(x=>x[0]);
  const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)||k=='info'||k=='keluarga'?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
  const cf=(l,v,c='')=>v?`<div class="cf ${c}"><small>${l}</small><p>${esc(v)}</p></div>`:'';
- const cn=x=>`<div class="card"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div>`;
- const cb=(t,l)=>`<h3 style="margin:16px 0 8px">${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint">Belum ada calon terdaftar.</p>');
+ const cn=x=>`<div class="cnx"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div>`;
+ const cb=(t,l)=>`<div class="card wc"><h3>${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint" style="margin:0">Belum ada calon terdaftar.</p>')+`</div>`;
  const wcal=`<div class="pnl hide" id="p_pencalonan">${cb('Calon Ketua RT '+esc(S.rt),rtL)}${cb('Calon Ketua RW '+esc(S.rw),rwL)}</div>`;
 
  const wvm={};if(rk)[...(rk.rt||[]),...(rk.rw||[])].forEach(x=>wvm[x.id]=x.n);const rok=!!rk&&!psu;
@@ -1159,4 +1165,9 @@ function tlLayout(){tlObs.disconnect();try{document.querySelectorAll('.tl').forE
   d.push(`<path d="M${x1} ${y1}H${xr-r}Q${xr} ${y1} ${xr} ${y1+r}V${ym-r}Q${xr} ${ym} ${xr-r} ${ym}H${xl+r}Q${xl} ${ym} ${xl} ${ym+r}V${y2-r}Q${xl} ${y2} ${xl+r} ${y2}H${x2}" fill="none" stroke="${l.dataset.p=='1'?'#4547b5':'#d8daee'}" stroke-width="4" stroke-linecap="round"/>`)}
  if(d.length)t.insertAdjacentHTML('beforeend',`<svg class="tu" width="${T.width}" height="${T.height}" aria-hidden="true">${d.join('')}</svg>`)})}finally{tlObs.observe($('#app'),{childList:true,subtree:true})}}
 tlObs.observe($('#app'),{childList:true,subtree:true});addEventListener('resize',tlLayout);addEventListener('load',tlLayout);if(document.fonts)document.fonts.ready.then(tlLayout);
-</script></body></html>
+</script><script>
+// Judul kartu: "RW" -> latar merah, "RT" -> latar hijau (otomatis, termasuk kartu yang dibuat belakangan)
+(()=>{let q=0;const tint=()=>{q=0;document.querySelectorAll('.card>h3,.card>.rowh.clh').forEach(e=>{const t=e.textContent,w=/\bRW\b/.test(t),r=/\bRT\b/.test(t);e.classList.toggle('trw',w&&!r);e.classList.toggle('trt',r&&!w)})};
+new MutationObserver(()=>{if(!q)q=requestAnimationFrame(tint)}).observe(document.body,{childList:true,subtree:true,characterData:true});tint()})();
+</script>
+</body></html>
