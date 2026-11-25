@@ -368,12 +368,11 @@ main:has(>#pd:not(.hide))>#dpsec>.dph{grid-column:2}
 .flat>h3{font-size:18px}
 .flat .rowh>h3,.dph>h3{font-size:17.7px}
 .wil{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:end;margin-bottom:14px}
-/* Data Pemilih (warga) - HP: judul seksi + kartu jumlah KK/Jiwa (hijau) sebaris, Wilayah di bawahnya */
-.wil .wtt{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-.wil .wt{margin:0;font-size:17px;white-space:nowrap}
+/* Data Pemilih (warga) - HP: tanpa judul kartu; Wilayah di atas, kartu jumlah KK/Jiwa (hijau) di bawahnya, lalu tabel */
+.wil .wsel{order:1}.wil .wtt{order:2;min-width:0}
 .wil #pdc{min-width:0}
 /* PC/tablet: kolom Wilayah 60%, sisanya kartu jumlah KK/Jiwa */
-@media(min-width:768px){.wil{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}.wil .wsel{order:1}.wil .wtt{order:2;display:block}.wil .wt{display:none}.wil #pdc .rowh{justify-content:space-around}}
+@media(min-width:768px){.wil{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}.wil #pdc .rowh{justify-content:space-around}}
 .wil #pdc .rowh{margin:0!important;min-height:47px;padding:0 16px!important;gap:18px;border-radius:14px!important;align-items:center}
 @media(max-width:767px){#menu button[data-k=info],#menu button[data-k=keluarga]{display:none}}
 @media(min-width:768px){
@@ -435,9 +434,15 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 #p_pencalonan>.card.wc:first-child{width:auto}
 /* HP: dua tombol sebaris (Calon RW / Calon RT) membuka kartu calon; PC/tablet: tombol disembunyikan, kedua kartu tampil (RW lalu RT) */
 /* Pendata: judul Anggota Keluarga diberi jarak dari kartu input data keluarga (tidak lagi tertarik ke atas oleh margin negatif judul kartu) */
-#pd>h3#ah{margin:26px 0 14px!important;border-radius:12px}
+#pd>h3#ah{margin:26px 0 14px!important;border-radius:12px;font-size:calc(1.17em - 2px)}
+/* Pendata (HP): judul seksi Data Pemilih sebaris dengan kartu jumlah KK/Jiwa (hijau) */
+@media(max-width:767px){#dpsec>.dph{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}#dpsec>.dph>h3{margin:0;white-space:nowrap}#dpsec .dph #dpc{min-width:0}#dpsec .dph #dpc .rowh{margin:0!important;gap:14px}}
 /* Informasi Calon (Warga) PC/tablet: Misi dan Program Kerja sebaris 50%:50% */
 @media(min-width:768px){.mp{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.mp .cf:only-child{grid-column:1/-1}}
+/* Pemilihan Calon (warga): kartu Pelaksanaan = judul biru, latar kartu biru muda */
+#p_sect>.card.pel{background:#e8f1fb;border-color:#c9dcf1}
+#p_sect>.card.pel>h3{background:#1f6fb2;color:#fff}
+#p_sect>.card.pel .pelg small{color:#4a6a8a}
 .wcb{display:flex;gap:10px;margin:0 0 14px}
 .wcb button{flex:1;min-width:0;padding:12px 8px;border-radius:14px;border:2px solid var(--c);background:#fff;color:var(--c);font:inherit;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
 .wcb button.on{background:var(--c);color:#fff}
@@ -1028,7 +1033,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
   if(r.error){el.innerHTML='<p class="msg">'+esc(r.error.message)+'</p>';return}
   const d=r.data||[];
   const jw=d.some(x=>!(x.anggota&&x.anggota[0]))?'-':d.reduce((a,x)=>a+x.anggota[0].count+1,0);
-  $('#dpc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#e8eafc;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';dpD=d;dpDraw()};
+  $('#dpc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#2e8b57;color:#fff;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';dpD=d;dpDraw()};
  const syncAdd=()=>{const on=canAdd();$('#tb2').hidden=!on;if(on!=!!$('#tb'))refresh()};
  setInterval(syncAdd,30000);loadDp();
  // --- Nomor HP KK tidak boleh sama (dicek sejak diisi, dan sekali lagi saat simpan)
@@ -1151,7 +1156,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  A.innerHTML=head(esc(S.nama_kk),'NIK <span id="nk">'+mask+'</span><button class="eb" id="ne" type="button" aria-label="Tampilkan NIK">'+ic(EYE,18)+'</button>',`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Standar Pelayanan',PROS_WRG,I_SHD,4)}${tlCard(tlHtml(tl))}${wmenu}<div class="pnl${wbtn.length?' hide':''}" id="p_sect">${wbtn.length?pelHtml(tl):''}${sect}</div>${wcal}${wdat}${wtet}
  <section class="flat dkel"><h3>${ic(I_USR,20)}Data Keluarga</h3>${kt}</section><div class="pnl hide" id="p_info"></div><div class="pnl hide" id="p_kel"><div class="card"><h3 style="margin:0 0 12px">Data Keluarga</h3>${kt}</div></div></main>`;
  $('#ne').onclick=()=>{vis=!vis;$('#nk').textContent=vis?(S.nik_kk||'-'):mask;$('#ne').innerHTML=ic(vis?EYEOFF:EYE,18);$('#ne').setAttribute('aria-label',vis?'Sembunyikan NIK':'Tampilkan NIK')};
- const INFO_HTML='<div class="card"><div class="wil"><div class="wtt"><h3 class="wt">Data Pemilih</h3><div id="pdc"></div></div><div class="wsel"><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select></div></div><div class="scroll" id="pdl"></div></div>';
+ const INFO_HTML='<div class="card"><div class="wil"><div class="wtt"><div id="pdc"></div></div><div class="wsel"><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select></div></div><div class="scroll" id="pdl"></div></div>';
  const openInfo=()=>{$('#p_info').innerHTML=INFO_HTML;$('#pds').onchange=loadPd;loadPd()};
  $('#sel').onclick=()=>{offMenu();$('#p_info').innerHTML='';openSub('Informasi Data Pemilih',INFO_HTML);$('#pds').onchange=loadPd;loadPd()};
  const loadPd=async()=>{const el=$('#pdl'),rtOnly=$('#pds').value=='rt';el.innerHTML='Memuat...';
