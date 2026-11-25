@@ -495,7 +495,19 @@ const SB_URL='https://vuzxyufjljhddkvkqdlz.supabase.co', SB_KEY='sb_publishable_
 const sb=supabase.createClient(SB_URL,SB_KEY);
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const hash=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-const KEC={Abeli:[],Baruga:[],Kadia:[],Kambu:[],Kendari:[],'Kendari Barat':[],Mandonga:[],Nambo:[],Poasia:[],Puuwatu:[],'Wua-Wua':['Anawai','Bonggoeya','Mataiwoi','Wua-Wua']};
+// Kecamatan & Kelurahan Kota Kendari (Peraturan Wali Kota Kendari No. 29 Tahun 2025, Pasal 3 ayat 3)
+const KEC={
+'Kendari':['Kandai','Kendari Caddi','Gunung Jati','Kampung Salo','Mangga Dua','Kessilampe','Mata','Purirano','Jati Mekar'],
+'Kendari Barat':['Kemaraya','Watu-Watu','Tipulu','Punggaloba','Benu-Benua','Sodohoa','Dapu-Dapura','Sanua','Lahundape'],
+'Mandonga':['Mandonga','Korumba','Alolama','Anggilowu','Wawombalata','Labibia'],
+'Puuwatu':['Puuwatu','Abeli Dalam','Watulondo','Punggolaka','Tobuuha','Lalodati'],
+'Kadia':['Kadia','Bende','Anaiwoi','Pondambea','Wawowanggu'],
+'Wua-Wua':['Wua-Wua','Bonggoeya','Mataiwoi','Anawai'],
+'Baruga':['Lepo-Lepo','Baruga','Watubangga','Wundudopi'],
+'Kambu':['Kambu','Padaleu','Mokoau','Lalolara'],
+'Poasia':['Anduonohu','Anggoeya','Rahandouna','Matabubu','Wundumbatu'],
+'Abeli':['Abeli','Lapulu','Pudai','Talia','Benua Nirae','Poasia','Anggalolemelai'],
+'Nambo':['Nambo','Petoaha','Tobimeita','Bungkutoko','Sambuli','Tondonggeu']};
 const NUM=n=>Array.from({length:n},(_,i)=>String(i+1).padStart(2,'0'));
 const opts=(a,ph)=>`<option value="">${ph||'Pilih'}</option>`+a.map(x=>`<option>${esc(x)}</option>`).join('');
 const HUB=['Istri','Anak Kandung','Anak Tiri','Orangtua','Saudara Kandung','Famili Lain'];
@@ -596,30 +608,39 @@ async function render(){$('#login').remove();inApp=true;history.pushState({a:1},
 
 async function pusat(A){
  A.innerHTML=head('Admin Pusat','Registrasi Admin Kelurahan')+`<main><div class="card"><h3 id="ft">Registrasi Admin Kelurahan</h3><div class="grid2">
- <div><label>Kota/Kabupaten</label><select id="k">${opts(['Kota Kendari','Lainnya...'])}</select></div>
- <div><label>Kecamatan</label><select id="kc">${opts(Object.keys(KEC))}</select></div>
- <div><label>Kelurahan</label><select id="kl">${opts([])}</select></div>
+ <div><label>Kota/Kabupaten</label><select id="k">${opts(['Kota Kendari','Lainnya...'])}</select><div id="wkt"></div></div>
+ <div><label>Kecamatan</label><div id="wkc"></div></div>
+ <div><label>Kelurahan</label><div id="wkl"></div></div>
  <div><label>No HP (username)</label><input id="hp" inputmode="tel"></div></div>
  <button class="btn" id="sv">Simpan</button> <button class="btn ghost hide" id="cx">Batal</button><div class="msg" id="m"></div></div>
  <div class="card"><h3>Admin Kelurahan</h3><div class="scroll" id="ls"></div></div></main>`;
  let rows=[],ed=null;
- const kl=v=>{const a=KEC[v]||[];$('#kl').innerHTML=opts(a,!v||a.length?'Pilih':'(belum tersedia)')};
- const lock=()=>{if(!$('#k').value){$('#kc').value='';kl('')}if(!$('#kc').value)$('#kl').value='';$('#kc').disabled=!$('#k').value;$('#kl').disabled=!$('#kc').value||!(KEC[$('#kc').value]||[]).length;$('#hp').disabled=!$('#kl').value;if($('#hp').disabled)$('#hp').value=''};
- $('#kc').onchange=e=>{kl(e.target.value);lock()};$('#k').onchange=lock;$('#kl').onchange=lock;
- const reset=()=>{ed=null;['k','kc','hp'].forEach(i=>$('#'+i).value='');kl('');lock();$('#sv').textContent='Simpan';$('#cx').classList.add('hide');$('#ft').textContent='Registrasi Admin Kelurahan'};
+ const isK=()=>$('#k').value=='Kota Kendari',isM=()=>$('#k').value=='Lainnya...';
+ const fkl=v=>{if(!isM())$('#kl').innerHTML=opts(isK()?(KEC[v]||[]):[],'Pilih')};
+ const kota=()=>isK()?'Kota Kendari':isM()?($('#kt').value||'').trim():'';
+ const lock=()=>{const kc=$('#kc').value.trim(),kl=$('#kl').value.trim(),ok=!!kota();$('#kc').disabled=!ok;$('#kl').disabled=!ok||!kc;$('#hp').disabled=!ok||!kc||!kl;if($('#hp').disabled)$('#hp').value=''};
+ // Kota Kendari: Kecamatan & Kelurahan berupa pilihan (data Perwali); Lainnya: diisi manual
+ const mk=()=>{const m=isM();
+  $('#wkt').innerHTML=m?'<input id="kt" placeholder="Ketik nama kota/kabupaten" autocomplete="off" style="margin-top:8px">':'';if(m)$('#kt').addEventListener('input',lock);
+  $('#wkc').innerHTML=m?'<input id="kc" placeholder="Ketik nama kecamatan" autocomplete="off">':`<select id="kc">${opts(isK()?Object.keys(KEC):[])}</select>`;
+  $('#wkl').innerHTML=m?'<input id="kl" placeholder="Ketik nama kelurahan" autocomplete="off">':`<select id="kl">${opts([])}</select>`;
+  $('#kc').addEventListener(m?'input':'change',()=>{fkl($('#kc').value);lock()});
+  $('#kl').addEventListener(m?'input':'change',lock)};
+ $('#k').onchange=()=>{mk();lock()};
+ const reset=()=>{ed=null;$('#k').value='';$('#hp').value='';mk();lock();$('#sv').textContent='Simpan';$('#cx').classList.add('hide');$('#ft').textContent='Registrasi Admin Kelurahan'};
  $('#cx').onclick=()=>{reset();$('#m').textContent=''};
  const load=async()=>{const {data}=await sb.from('kelurahan_admin').select('*').order('created_at',{ascending:false});rows=data||[];
   $('#ls').innerHTML='<table><tr><th>HP</th><th>Kelurahan</th><th>Kecamatan</th><th>Status</th><th>Aksi</th></tr>'+rows.map((r,i)=>`<tr><td>${esc(r.hp)}</td><td>${esc(r.kelurahan)}</td><td>${esc(r.kecamatan)}</td><td>${r.pass_hash?'Aktif':'Belum login'}</td><td style="white-space:nowrap"><button class="btn alt sm" data-e="${i}">Edit</button><button class="btn del sm" data-d="${i}">Hapus</button></td></tr>`).join('')+'</table>'};
  $('#ls').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const m=$('#m');
-  if(b.dataset.e!=null){const r=rows[b.dataset.e];ed=r.hp;$('#k').value=r.kota;$('#kc').value=r.kecamatan;kl(r.kecamatan);$('#kl').value=r.kelurahan;$('#hp').value=r.hp;lock();
+  if(b.dataset.e!=null){const r=rows[b.dataset.e];ed=r.hp;$('#k').value=r.kota=='Kota Kendari'?'Kota Kendari':'Lainnya...';mk();if(isM()&&r.kota!='Lainnya...')$('#kt').value=r.kota;$('#kc').value=r.kecamatan;fkl(r.kecamatan);$('#kl').value=r.kelurahan;$('#hp').value=r.hp;lock();
    $('#sv').textContent='Perbarui';$('#cx').classList.remove('hide');$('#ft').textContent='Edit Admin Kelurahan';m.textContent='';scrollTo({top:0,behavior:'smooth'})}
   else if(b.dataset.d!=null){const r=rows[b.dataset.d];askConfirm('Hapus admin kelurahan?',r.hp+' ('+r.kelurahan+') akan dihapus.',async()=>{
    const {error}=await sb.from('kelurahan_admin').delete().eq('hp',r.hp);m.className=error?'msg':'msg ok';m.textContent=error?error.message:'Admin kelurahan dihapus.';if(!error){if(ed==r.hp)reset();load()}})}};
- $('#sv').onclick=async()=>{const r={kota:$('#k').value,kecamatan:$('#kc').value,kelurahan:$('#kl').value,hp:$('#hp').value.trim()},m=$('#m');
+ $('#sv').onclick=async()=>{const r={kota:kota(),kecamatan:$('#kc').value.trim(),kelurahan:$('#kl').value.trim(),hp:$('#hp').value.trim()},m=$('#m');
   if(Object.values(r).some(v=>!v)){m.className='msg';m.textContent='Lengkapi semua isian.';return}
   let q;if(ed){if(r.hp!=ed)r.pass_hash=null;q=await sb.from('kelurahan_admin').update(r).eq('hp',ed)}else q=await sb.from('kelurahan_admin').insert(r);
   m.className=q.error?'msg':'msg ok';m.textContent=q.error?q.error.message:(ed?'Perubahan tersimpan.':'Admin kelurahan tersimpan.');if(!q.error){reset();load()}};
- lock();load()}
+ mk();lock();load()}
 
 async function counts(f,byRt=true){const c=async jk=>{let q=sb.from('anggota').select('nik,keluarga!inner(kelurahan,rw,rt)',{count:'exact',head:true}).eq('jk',jk).eq('keluarga.kelurahan',f.kelurahan);if(f.rw){q=q.eq('keluarga.rw',f.rw);if(byRt)q=q.eq('keluarga.rt',f.rt)}const {count}=await q;return count||0};
  const kq=(tb,sel,hub)=>{let q=sb.from(tb).select(sel,{count:'exact',head:true});if(hub)q=q.eq('hubungan','Istri');const p=tb=='anggota'?'keluarga.':'';q=q.eq(p+'kelurahan',f.kelurahan);if(f.rw){q=q.eq(p+'rw',f.rw);if(byRt)q=q.eq(p+'rt',f.rt)}return q.then(x=>x.count||0)};
