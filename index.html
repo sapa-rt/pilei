@@ -445,6 +445,8 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 #p_sect>.card.pel .pelg small{color:#4a6a8a}
 /* Pemilihan Calon (warga) PC/tablet: maksimal 6 foto calon per baris; bila kurang dari 6, lebar kartu tetap dan jarak antar kartu dibagi rata */
 @media(min-width:768px){.cgrid{grid-template-columns:repeat(var(--n,6),calc((100% - 50px)/6));justify-content:space-evenly;gap:10px}}
+/* Pendata: baris Data Pemilih dapat diklik untuk edit */
+#dp tr[data-n]{cursor:pointer}#dp tr[data-n]:hover td,#dp tr[data-n]:focus-visible td{background:#eef0fb}#dp tr[data-n]:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
 .wcb{display:flex;gap:10px;margin:0 0 14px}
 .wcb button{flex:1;min-width:0;padding:12px 8px;border-radius:14px;border:2px solid var(--c);background:#fff;color:var(--c);font:inherit;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
 .wcb button.on{background:var(--c);color:#fff}
@@ -1026,8 +1028,12 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  // --- Tabel Data Pemilih (RT/RW pendata)
  let dpD=[],dpHl=null;
  const dpDraw=()=>{const el=$('#dp'),d=dpD,hl=dpHl,q=($('#dpq').value||'').trim().toLowerCase(),l=d.filter(x=>!q||[x.nama_kk,x.alamat].join(' ').toLowerCase().includes(q));$('#dps').hidden=!d.length;
-  el.innerHTML=l.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+l.map(x=>`<tr${x.nkk==hl?' class="new"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':(d.length?'<p class="hint">Data tidak ditemukan.</p>':'<p class="hint">Belum ada data pemilih.</p>');dpFit()};
+  el.innerHTML=l.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+l.map(x=>`<tr data-n="${esc(x.nkk)}" tabindex="0" title="Klik untuk edit data"${x.nkk==hl?' class="new"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':(d.length?'<p class="hint">Data tidak ditemukan.</p>':'<p class="hint">Belum ada data pemilih.</p>');dpFit()};
  const dpFit=()=>{const w=$('#dp'),t=w&&w.querySelector('table');if(!t)return;w.style.maxHeight='';if(t.rows.length>21){let h=0;for(let i=0;i<21;i++)h+=t.rows[i].offsetHeight;w.style.maxHeight=(h+2)+'px'}};
+ // --- Klik baris = edit data keluarga (form sama dengan Input Data KK, tombol Perbarui)
+ const editKK=async n=>{const [a,b]=await Promise.all([sb.from('keluarga').select('*').eq('nkk',n).maybeSingle(),sb.from('anggota').select('*').eq('nkk',n)]);if(a.error||!a.data){toast(a.error?a.error.message:'Data keluarga tidak ditemukan.');return}if(b.error){toast(b.error.message);return}kk=[a.data];open(a.data,b.data||[])};
+ const pickKK=e=>{const tr=e.target.closest('tr[data-n]');if(!tr)return;const n=tr.dataset.n,go=()=>editKK(n);if(!$('#pd').classList.contains('hide')&&vals()!=base)askConfirm('Buang isian?','Isian yang belum disimpan akan dibuang.',go,'Ya, lanjutkan');else go()};
+ $('#dp').addEventListener('click',pickKK);$('#dp').addEventListener('keydown',e=>{if(e.key=='Enter'||e.key==' '){if(e.target.closest('tr[data-n]')){e.preventDefault();pickKK(e)}}});
  $('#dpq').oninput=()=>{$('#dpx').hidden=!$('#dpq').value;dpDraw()};$('#dpx').onclick=()=>{$('#dpq').value='';$('#dpx').hidden=true;dpDraw();$('#dpq').focus()};
  const loadDp=async()=>{const el=$('#dp');dpHl=hlKK;hlKK=null;
   const q=c=>sb.from('keluarga').select(c).eq('kelurahan',S.kelurahan).eq('rw',S.rw).eq('rt',S.rt).order('nama_kk').limit(500);
