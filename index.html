@@ -807,10 +807,10 @@ async function kel(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurah
   let q=sb.from('petugas').select('hp,nama').eq(f,v);if(ed)q=q.neq('hp',ed);const {data}=await q.limit(1);
   if(data&&data.length){const t=f=='hp'?'Nomor HP':'NIK';m.className='msg';m.textContent=t+' sudah terdaftar atas nama '+data[0].nama+'. Ganti '+t+' tersebut.';el.value='';el.focus();return true}
   return false};
- const reset=keep=>{ed=null;['rt','hp','nm','nik'].forEach(i=>$('#'+i).value='');$('#rw').value=keep?lastRw:'';$('#sv').textContent='Simpan';$('#sv2').classList.remove('hide');$('#cx').classList.add('hide');$('#pt').textContent='Pendata Warga';(keep?$('#rt'):$('#rw')).focus()};
+ const reset=keep=>{ed=null;['rt','hp','nm','nik'].forEach(i=>$('#'+i).value='');$('#rw').value=keep?lastRw:'';$('#sv').textContent='Simpan';$('#sv2').classList.remove('hide');$('#cx').classList.add('hide');$('#pt').textContent='Pendata Warga'};
  $('#cx').onclick=()=>{reset();$('#m').textContent=''};
  $('#ls').onclick=e=>{const b=e.target.closest('button');if(!b)return;const m=$('#m');
-  if(b.dataset.e!=null){const r=rows[b.dataset.e];ed=r.hp;$('#rt').value=r.rt;$('#rw').value=r.rw;$('#hp').value=r.hp;$('#nm').value=r.nama;$('#nik').value=r.nik;$('#sv').textContent='Perbarui';$('#sv2').classList.add('hide');$('#cx').classList.remove('hide');$('#pt').textContent='Edit Pendata Warga';m.textContent='';$('#p_pendata').scrollIntoView({behavior:'smooth'});$('#rw').focus()}
+  if(b.dataset.e!=null){const r=rows[b.dataset.e];ed=r.hp;$('#rt').value=r.rt;$('#rw').value=r.rw;$('#hp').value=r.hp;$('#nm').value=r.nama;$('#nik').value=r.nik;$('#sv').textContent='Perbarui';$('#sv2').classList.add('hide');$('#cx').classList.remove('hide');$('#pt').textContent='Edit Pendata Warga';m.textContent='';$('#p_pendata').scrollIntoView({behavior:'smooth'})}
   else if(b.dataset.d!=null){const r=rows[b.dataset.d];askConfirm('Hapus petugas?',r.nama+' (HP '+r.hp+', RT/RW '+r.rt+'/'+r.rw+') akan dihapus.',async()=>{const {error}=await sb.from('petugas').delete().eq('hp',r.hp);m.className=error?'msg':'msg ok';m.textContent=error?error.message:'Petugas dihapus.';if(!error){if(ed==r.hp)reset();lp()}})}};
  $('#hp').onchange=()=>dup('hp');$('#qs').oninput=()=>{$('#qx').hidden=!$('#qs').value;draw()};$('#qx').onclick=()=>{$('#qs').value='';$('#qx').hidden=true;draw();$('#qs').focus()};$('#nik').oninput=e=>{if(e.target.value.length==16)dup('nik')};
  const save=async keep=>{const r={hp:$('#hp').value.trim(),nama:$('#nm').value.trim(),nik:$('#nik').value.trim(),rw:pad($('#rw').value.trim()),rt:pad($('#rt').value.trim()),kelurahan:S.kelurahan,created_by:S.hp},m=$('#m');
@@ -828,7 +828,7 @@ async function kel(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurah
  const treset=()=>{ted=null;['tn','ta','tb'].forEach(i=>$('#'+i).value='');tsync();$('#ja').value='00:01';$('#jb').value='23:59';$('#tsv').textContent='Simpan';$('#tcx').classList.add('hide');$('#tt').textContent='Timeline Tahapan'};
  $('#tcx').onclick=()=>{treset();$('#tm').textContent=''};
  $('#tls').onclick=e=>{const b=e.target.closest('button');if(!b)return;const m=$('#tm');
-  if(b.dataset.e!=null){const t=tr[b.dataset.e];ted=t.id;$('#tn').value=t.nama;$('#ta').value=t.tgl_awal;$('#tb').value=t.tgl_akhir;tsync();$('#ja').value=t.jam_awal?t.jam_awal.slice(0,5):'00:01';$('#jb').value=t.jam_akhir?t.jam_akhir.slice(0,5):'23:59';$('#tsv').textContent='Perbarui';$('#tcx').classList.remove('hide');$('#tt').textContent='Edit Tahapan';m.textContent='';$('#p_tahapan').scrollIntoView({behavior:'smooth'});$('#tn').focus()}
+  if(b.dataset.e!=null){const t=tr[b.dataset.e];ted=t.id;$('#tn').value=t.nama;$('#ta').value=t.tgl_awal;$('#tb').value=t.tgl_akhir;tsync();$('#ja').value=t.jam_awal?t.jam_awal.slice(0,5):'00:01';$('#jb').value=t.jam_akhir?t.jam_akhir.slice(0,5):'23:59';$('#tsv').textContent='Perbarui';$('#tcx').classList.remove('hide');$('#tt').textContent='Edit Tahapan';m.textContent='';$('#p_tahapan').scrollIntoView({behavior:'smooth'})}
   else if(b.dataset.d!=null){const t=tr[b.dataset.d];askConfirm('Hapus tahapan?',t.nama+' akan dihapus dari timeline.',async()=>{const {error}=await sb.from('tahapan').delete().eq('id',t.id);m.className=error?'msg':'msg ok';m.textContent=error?error.message:'Tahapan dihapus.';if(!error){if(ted==t.id)treset();lt()}})}};
  $('#ta').oninput=tsync;$('#ta').onchange=tsync;tsync();
  $('#tsv').onclick=async()=>{const m=$('#tm'),r={kelurahan:S.kelurahan,nama:$('#tn').value.trim(),tgl_awal:$('#ta').value,tgl_akhir:$('#tb').value,jam_awal:$('#ja').value||'00:01',jam_akhir:$('#jb').value||'23:59'};m.className='msg';
@@ -1007,7 +1007,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  const open=(r,ang)=>{if(!r&&!canAdd()){toast('Tambah data hanya tersedia pada tahapan Pendataan.');return}ed=r?r.nkk:null;old=ang||[];ml.innerHTML='';setAdd(null);['nkk','nkp','nkik','al','hk'].forEach(i=>$('#'+i).value='');
   if(r){$('#nkk').value=r.nkk;$('#nkp').value=r.nama_kk||'';$('#nkik').value=r.nik_kk||'';$('#al').value=r.alamat||'';$('#hk').value=r.hp||'';(old.length?old:[{}]).forEach(a=>ml.append(memRow(a)))}
   renum();$('#nkk').disabled=!!r;$('#pt').textContent=r?'Edit Data Keluarga':'Input Data KK';$('#sv').textContent=r?'Perbarui':'Simpan';$('#m').textContent='';
-  openPd({onClose:reset,guard:()=>{if(vals()==base)return false;askConfirm('Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',()=>{base=vals();history.back()},'Ya, batalkan');return true}});base=vals();upd();(r?$('#nkp'):$('#nkk')).focus()};
+  openPd({onClose:reset,guard:()=>{if(vals()==base)return false;askConfirm('Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',()=>{base=vals();history.back()},'Ya, batalkan');return true}});base=vals();upd()};
  const reset=()=>{ed=null;old=[];ml.innerHTML='';document.querySelectorAll('#pd .nkm').forEach(x=>x.textContent='');$('#m').textContent='';$('#nkk').disabled=false;setAdd(null)};const close=()=>{if(subOpen)history.back();else{reset();$('#pd').classList.add('hide')}};
  const cancel=()=>{if(vals()!=base)askConfirm(ed?'Batalkan perubahan?':'Batalkan tambah data?','Isian yang belum disimpan akan dibuang.',close,'Ya, batalkan');else close()};
  $('#dn').onclick=e=>{if(e.target.closest('#tb'))open()};
@@ -1016,7 +1016,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  $('#pd').addEventListener('input',upd);$('#pd').addEventListener('change',upd);
  const needAng=()=>{if($('#xm'))return;const d=document.createElement('div');d.id='xm';d.className='modal';d.innerHTML='<div class="mb" role="dialog" aria-modal="true"><h3>Anggota Keluarga</h3><p>Anda wajib menginput anggota keluarga (minimal 1 orang)</p><div class="mact"><button class="btn alt" id="xa" type="button">+ Tambah anggota</button></div></div>';document.body.append(d);$('#xa').onclick=()=>{d.remove();$('#add').click()}};
  $('#cx').onclick=cancel;
- $('#add').onclick=()=>{ml.append(memRow());renum();ml.lastElementChild.querySelector('.nik').focus()};
+ $('#add').onclick=()=>{ml.append(memRow());renum()};
  ml.onclick=e=>{const b=e.target.closest('.rm');if(!b)return;const r=b.closest('.mem'),nm=(r.querySelector('.nama').value||'').trim(),no=r.querySelector('.mh b').textContent;
   askConfirm('Hapus anggota?',no+(nm?' ('+nm+')':'')+' akan dihapus dari data keluarga'+(ed?' setelah Anda menekan Perbarui.':'.'),()=>{r.remove();renum();upd()})};
 
