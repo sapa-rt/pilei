@@ -428,6 +428,10 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 .cnx+.cnx{border-top:1.5px solid var(--line);margin-top:16px;padding-top:16px}
 #p_pencalonan>.card.wc:first-child{width:auto}
 /* HP: dua tombol sebaris (Calon RW / Calon RT) membuka kartu calon; PC/tablet: tombol disembunyikan, kedua kartu tampil (RW lalu RT) */
+/* Pendata: judul Anggota Keluarga diberi jarak dari kartu input data keluarga (tidak lagi tertarik ke atas oleh margin negatif judul kartu) */
+#pd>h3#ah{margin:26px 0 14px!important;border-radius:12px}
+/* Informasi Calon (Warga) PC/tablet: Misi dan Program Kerja sebaris 50%:50% */
+@media(min-width:768px){.mp{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.mp .cf:only-child{grid-column:1/-1}}
 .wcb{display:flex;gap:10px;margin:0 0 14px}
 .wcb button{flex:1;min-width:0;padding:12px 8px;border-radius:14px;border:2px solid var(--c);background:#fff;color:var(--c);font:inherit;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
 .wcb button.on{background:var(--c);color:#fff}
@@ -962,7 +966,7 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  <div><label>NIK Kepala Keluarga</label><input id="nkik" class="num" inputmode="numeric" maxlength="16"><div class="msg nkm"></div></div><div><label>Alamat</label><input id="al"></div>
  <div><label>No HP Keluarga</label><input id="hk" class="num" inputmode="tel" maxlength="15"></div></div>
  <p class="hint hide" id="nh" style="margin:10px 0 0"></p>
- <h3 style="margin-top:18px">Anggota Keluarga</h3><div id="ml"></div>
+ <h3 id="ah">Anggota Keluarga</h3><div id="ml"></div>
  <button class="btn ghost" id="add" type="button" disabled>+ Tambah anggota</button> <button class="btn ok" id="sv" type="button" disabled>Simpan</button><div class="msg" id="m"></div></div></main>`;
  const DENY='Ditolak oleh database. Jalankan bagian kebijakan (policy) pada update_registrasi_warga.sql di Supabase > SQL Editor.';
  const ml=$('#ml'),strip=a=>({nkk:a.nkk,nik:a.nik,nama:a.nama,jk:a.jk,hubungan:a.hubungan,tempat_lahir:a.tempat_lahir,tgl_lahir:a.tgl_lahir,pekerjaan:a.pekerjaan});
@@ -1119,7 +1123,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  const wbtn=WM.filter(([k])=>(entered(tlW,k)&&(k!='pemilihan'||phase=='aktif'))||(k=='pemilihan'&&open)).map(x=>x[0]);
  const wmenu=`<section class="flat"><h3>${ic(I_GRD,20)}Fitur Utama</h3><div class="tabs wrap w4" id="menu">${WM.map(([k,t,i,c])=>`<button type="button" data-k="${k}" style="--c:${c}"${wbtn.includes(k)||k=='info'||k=='keluarga'?'':' disabled'}>${ic(i,34)}${t}</button>`).join('')}</div></section>`;
  const cf=(l,v,c='')=>v?`<div class="cf ${c}"><small>${l}</small><p>${esc(v)}</p></div>`:'';
- const cn=x=>`<div class="cnx"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div>`;
+ const cn=x=>`<div class="cnx"><div class="cn"><img src="${esc(x.foto_url)}" alt="Foto ${esc(x.nama)}"><div><b>${esc(x.nama)}${ageTxt(x)}</b></div></div><div class="tri">${cf('Pekerjaan',x.pekerjaan)}${cf('Pendidikan',x.pendidikan)}${cf('Alamat',x.alamat)}</div>${cf('Visi',x.visi,'vi')}<div class="mp">${cf('Misi',x.misi)}${cf('Program Kerja',x.program)}</div></div>`;
  const cb=(j,t,l)=>`<div class="card wc" data-j="${j}"><h3>${t}</h3>`+(l.length?l.map(cn).join(''):'<p class="hint" style="margin:0">Belum ada calon terdaftar.</p>')+`</div>`;
  const wcal=`<div class="pnl hide" id="p_pencalonan"><div class="wcb"><button type="button" data-j="RW" aria-pressed="false" style="--c:#c0392b">Calon RW ${esc(S.rw)}</button><button type="button" data-j="RT" aria-pressed="false" style="--c:#2e8b57">Calon RT ${esc(S.rt)}</button></div>${cb('RW','Calon Ketua RW '+esc(S.rw),rwL)}${cb('RT','Calon Ketua RT '+esc(S.rt),rtL)}</div>`;
 
