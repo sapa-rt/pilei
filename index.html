@@ -1017,7 +1017,8 @@ async function petugas(A){const [l,p]=await counts(S);const tl=await getTl(S.kel
  const needAng=()=>{if($('#xm'))return;const d=document.createElement('div');d.id='xm';d.className='modal';d.innerHTML='<div class="mb" role="dialog" aria-modal="true"><h3>Anggota Keluarga</h3><p>Anda wajib menginput anggota keluarga (minimal 1 orang)</p><div class="mact"><button class="btn alt" id="xa" type="button">+ Tambah anggota</button></div></div>';document.body.append(d);$('#xa').onclick=()=>{d.remove();$('#add').click()}};
  $('#cx').onclick=cancel;
  $('#add').onclick=()=>{ml.append(memRow());renum();ml.lastElementChild.querySelector('.nik').focus()};
- ml.onclick=e=>{const b=e.target.closest('.rm');if(!b)return;b.closest('.mem').remove();renum()};
+ ml.onclick=e=>{const b=e.target.closest('.rm');if(!b)return;const r=b.closest('.mem'),nm=(r.querySelector('.nama').value||'').trim(),no=r.querySelector('.mh b').textContent;
+  askConfirm('Hapus anggota?',no+(nm?' ('+nm+')':'')+' akan dihapus dari data keluarga'+(ed?' setelah Anda menekan Perbarui.':'.'),()=>{r.remove();renum();upd()})};
 
  // --- NKK sudah ada = tambah anggota keluarga; NIK ganda ditolak
  const setAdd=r=>{addMode=r;[['nkp','nama_kk'],['nkik','nik_kk'],['al','alamat'],['hk','hp']].forEach(([i,f])=>{const e=$('#'+i);e.disabled=!!r;e.value=r?(r[f]||''):''});
