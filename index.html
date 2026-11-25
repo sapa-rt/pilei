@@ -792,7 +792,7 @@ async function kel(A){const [l,p]=await counts(S);const tl=await getTl(S.kelurah
   openF(({tahapan:'Tahapan Pemilihan',pendata:'Pendata Warga',pencalonan:'Pendaftaran Calon',penghitungan:pmDone(tr)?'Hasil Perolehan Suara':'Perolehan Suara (Sementara)'})[k]||KM.find(x=>x[0]==k)[1],$('#p_'+k));
   if(k=='pemilih'){const {data}=await sb.from('petugas').select('rt,rw').eq('kelurahan',S.kelurahan);vPet=data||[];vRt='';const w=$('#vrw');w.innerHTML=opts([...new Set(vPet.map(r=>r.rw))].sort());w.onchange=()=>{vRt='';showPemilih()};$('#vkn').innerHTML='&ndash;';$('#vres').innerHTML='<p class="hint">Pilih RW untuk melihat jumlah dan daftar pemilih.</p>'}
   if(k=='tahapan')lt();
-  if(k=='pendata'){lp();$('#rw').focus()}
+  if(k=='pendata'){lp()}
   if(k=='pencalonan'){$('#crw').focus();await pair('c',()=>{loadCalon('RW');loadCalon('RT');calAct()});loadCalon('RW');loadCalon('RT');calAct()}
   if(k=='penghitungan'){$('#pelk').innerHTML=pelHtml(tr);pelTick();await pair('g',()=>showHitung());$('#gres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat perolehan suara.</p>'}
   if(k=='penetapan'){await pair('t',()=>showTetap());$('#tres').innerHTML='<p class="hint">Pilih RW (dan RT bila perlu) untuk melihat calon terpilih.</p>'}});
