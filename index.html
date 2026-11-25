@@ -367,7 +367,13 @@ main:has(>#pd:not(.hide))>#dpsec>.dph{grid-column:2}
 .hdr #tb{background:rgba(255,255,255,.3);border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
 .flat>h3{font-size:18px}
 .flat .rowh>h3,.dph>h3{font-size:17.7px}
-.wil{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-bottom:14px}
+.wil{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:end;margin-bottom:14px}
+/* Data Pemilih (warga) - HP: judul seksi + kartu jumlah KK/Jiwa (hijau) sebaris, Wilayah di bawahnya */
+.wil .wtt{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.wil .wt{margin:0;font-size:17px;white-space:nowrap}
+.wil #pdc{min-width:0}
+/* PC/tablet: kolom Wilayah 60%, sisanya kartu jumlah KK/Jiwa */
+@media(min-width:768px){.wil{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}.wil .wsel{order:1}.wil .wtt{order:2;display:block}.wil .wt{display:none}.wil #pdc .rowh{justify-content:space-around}}
 .wil #pdc .rowh{margin:0!important;min-height:47px;padding:0 16px!important;gap:18px;border-radius:14px!important;align-items:center}
 @media(max-width:767px){#menu button[data-k=info],#menu button[data-k=keluarga]{display:none}}
 @media(min-width:768px){
@@ -1145,7 +1151,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  A.innerHTML=head(esc(S.nama_kk),'NIK <span id="nk">'+mask+'</span><button class="eb" id="ne" type="button" aria-label="Tampilkan NIK">'+ic(EYE,18)+'</button>',`<div class="hd" id="dn">${hdr(l,p,true)}</div>`,'ttl')+`<main>${prosHtml('Standar Pelayanan',PROS_WRG,I_SHD,4)}${tlCard(tlHtml(tl))}${wmenu}<div class="pnl${wbtn.length?' hide':''}" id="p_sect">${wbtn.length?pelHtml(tl):''}${sect}</div>${wcal}${wdat}${wtet}
  <section class="flat dkel"><h3>${ic(I_USR,20)}Data Keluarga</h3>${kt}</section><div class="pnl hide" id="p_info"></div><div class="pnl hide" id="p_kel"><div class="card"><h3 style="margin:0 0 12px">Data Keluarga</h3>${kt}</div></div></main>`;
  $('#ne').onclick=()=>{vis=!vis;$('#nk').textContent=vis?(S.nik_kk||'-'):mask;$('#ne').innerHTML=ic(vis?EYEOFF:EYE,18);$('#ne').setAttribute('aria-label',vis?'Sembunyikan NIK':'Tampilkan NIK')};
- const INFO_HTML='<div class="card"><div class="wil"><div><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select></div><div id="pdc"></div></div><div class="scroll" id="pdl"></div></div>';
+ const INFO_HTML='<div class="card"><div class="wil"><div class="wtt"><h3 class="wt">Data Pemilih</h3><div id="pdc"></div></div><div class="wsel"><label for="pds">Wilayah</label><select id="pds"><option value="rt">RT '+esc(S.rt)+' / RW '+esc(S.rw)+'</option><option value="rw">Seluruh RW '+esc(S.rw)+'</option></select></div></div><div class="scroll" id="pdl"></div></div>';
  const openInfo=()=>{$('#p_info').innerHTML=INFO_HTML;$('#pds').onchange=loadPd;loadPd()};
  $('#sel').onclick=()=>{offMenu();$('#p_info').innerHTML='';openSub('Informasi Data Pemilih',INFO_HTML);$('#pds').onchange=loadPd;loadPd()};
  const loadPd=async()=>{const el=$('#pdl'),rtOnly=$('#pds').value=='rt';el.innerHTML='Memuat...';
@@ -1154,7 +1160,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
   if(r.error){el.innerHTML='<p class="msg">'+esc(r.error.message)+'</p>';return}
   const d=r.data||[];
   const jw=d.some(x=>!(x.anggota&&x.anggota[0]))?'-':d.reduce((a,x)=>a+x.anggota[0].count+1,0);
-  $('#pdc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#e8eafc;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';
+  $('#pdc').innerHTML=d.length?`<div class="rowh" style="margin:0 0 10px;font-size:14px;background:#2e8b57;color:#fff;border-radius:8px;padding:8px 12px"><span><b>${d.length}</b> KK</span><span><b>${jw}</b> Jiwa</span></div>`:'';
   el.innerHTML=d.length?`<table class="ht pm"><tr><th>Nama KK</th><th>Alamat</th><th class="ag">Jml Kel.</th><th class="ag">Status</th></tr>`+d.map(x=>`<tr${x.nkk==S.nkk?' class="me"':''}><td class="nm">${esc(x.nama_kk)}</td><td class="al">${esc(x.alamat||'-')}</td><td class="ag">${x.anggota&&x.anggota[0]?x.anggota[0].count+1:'-'}</td><td class="ag">${x.pass_hash?'<span title="Sudah registrasi" role="img" aria-label="Sudah registrasi" style="color:#18794e">'+ic('<path d="M5 12l5 5 9-10"/>',20)+'</span>':'<span title="Belum registrasi" role="img" aria-label="Belum registrasi" style="color:#c0392b">'+ic('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</span>'}</td></tr>`).join('')+'</table>':'<p class="hint">Belum ada data pemilih.</p>'};
  {bindMenu(k=>{openF(({pemilihan:'Pemilihan Calon',penghitungan:'Hasil Perolehan Suara',info:'Informasi Data Pemilih',keluarga:'Data Keluarga'})[k]||WM.find(x=>x[0]==k)[1],$(k=='pencalonan'?'#p_pencalonan':k=='penghitungan'?'#p_hitung':k=='penetapan'?'#p_tetap':k=='info'?'#p_info':k=='keluarga'?'#p_kel':'#p_sect'));if(k=='info')openInfo()})}
  const vt=$('#vt');
