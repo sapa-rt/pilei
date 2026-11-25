@@ -200,11 +200,11 @@ header.top,#sub .sh{padding-left:max(18px,calc((100% - 900px)/2 + 18px));padding
 #dpsec>#dps{grid-column:2;margin:0 0 10px}
 /* Sub halaman Input Data KK: NKK, NIK KK, Nama KK sebaris; Alamat, No HP sebaris */
 #pd .grid2{grid-template-columns:repeat(3,minmax(0,1fr))}
-#pd .grid2>div:nth-child(1){order:1}
-#pd .grid2>div:nth-child(3){order:2}
-#pd .grid2>div:nth-child(2){order:3}
-#pd .grid2>div:nth-child(4){order:4}
-#pd .grid2>div:nth-child(5){order:5}
+#pd>.grid2>div:nth-child(1){order:1}
+#pd>.grid2>div:nth-child(3){order:2}
+#pd>.grid2>div:nth-child(2){order:3}
+#pd>.grid2>div:nth-child(4){order:4}
+#pd>.grid2>div:nth-child(5){order:5}
 /* Ayo Memilih (warga): kartu Pelaksanaan (kiri) dan Terima Kasih (kanan) sebaris */
 #p_sect:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px}
 #p_sect>*{grid-column:1/-1;min-width:0}
@@ -503,7 +503,7 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
   <div class="tabs" id="tabs"></div>
   <form id="lf" novalidate>
    <label for="u">Username</label><input id="u" autocomplete="username">
-   <label for="p">Password</label><div class="pw"><input id="p" type="password" autocomplete="current-password"><button type="button" class="eye" data-t="p" aria-label="Tampilkan password"></button></div>
+   <div id="pwb" class="hide"><label for="p">Password</label><div class="pw"><input id="p" type="password" autocomplete="current-password"><button type="button" class="eye" data-t="p" aria-label="Tampilkan password"></button></div></div>
    <button class="btn alt" id="go" type="submit" style="width:100%"><span>Masuk</span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></button>
   </form>
   <form id="rf" class="hide" novalidate>
@@ -564,8 +564,9 @@ window.addEventListener('popstate',()=>{if(inApp){if(subOpen){if(subCfg.guard&&s
 $('#tabs').innerHTML=Object.entries(ROLES).filter(([k])=>k!='pusat').map(([k,v])=>`<button type="button" data-r="${k}" style="--c:${COL[k]}">${ic(IC[k],28)}${v}</button>`).join('');
 function setRole(r){role=r;const as=$('#login .as');if(as)as.textContent=r=='pusat'?'Login sebagai Admin':'Login sebagai';document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.r==r));
  $('#u').placeholder=r!='pusat'?'Nomor HP terdaftar':'Username';
- $('#lf').classList.remove('hide');$('#rf').classList.add('hide');$('#lm').textContent=''}
-$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){setRole(b.dataset.r);$('#u').focus()}};setRole('kel');document.querySelectorAll('#login .lg').forEach(l=>l.addEventListener('click',()=>{setRole('pusat');$('#u').focus()}));
+ $('#lf').classList.remove('hide');$('#rf').classList.add('hide');$('#lm').textContent='';showPw(r=='pusat')}
+function showPw(on){$('#pwb').classList.toggle('hide',!on);if(!on)$('#p').value=''}
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){setRole(b.dataset.r);$('#u').focus();detect()}};setRole('kel');document.querySelectorAll('#login .lg').forEach(l=>l.addEventListener('click',()=>{setRole('pusat');$('#u').focus()}));
 document.querySelectorAll('#tabs button').forEach(b=>{if(b.dataset.r=='petugas'||b.dataset.r=='user')b.hidden=true});
 (async()=>{const pk=(await sb.rpc('kelurahan_psu_aktif')).data||[];const {data}=await sb.from('tahapan').select('*'),by={};(data||[]).forEach(t=>(by[t.kelurahan]=by[t.kelurahan]||[]).push(t));const any=r=>Object.values(by).some(x=>openRole(x,r));$('#tabs [data-r="user"]').hidden=!(any('user')||pk.length>0);$('#tabs [data-r="petugas"]').hidden=!any('petugas');$('#tabs').classList.toggle('q4',document.querySelectorAll('#tabs button:not([hidden])').length>3)})();
 setTimeout(()=>$('#splash').classList.add('out'),3200);setTimeout(()=>$('#splash').remove(),4300);
@@ -573,17 +574,29 @@ setTimeout(()=>$('#splash').classList.add('out'),3200);setTimeout(()=>$('#splash
 let pend=null;
 const lookup=async u=>{const tb={kel:'kelurahan_admin',petugas:'petugas',user:'keluarga'}[role];const hs=tb=='keluarga'?[...new Set([u,normHp(u)])]:[u];const {data,error}=await sb.from(tb).select('*').in('hp',hs).limit(1);let d=data&&data[0],closed=false;if(d&&role!='kel'&&!(await roleOpen(d.kelurahan,role))){d=null;closed=true}return {tb,data:d,error,closed}};
 const firstLogin=(tb,data)=>{pend={tb,data};const who=data.nama_kk||data.nama||'';$('#rh').textContent='Selamat datang'+(who?', '+who:'')+'! Ini login pertama untuk '+data.hp+'. Buat password baru (minimal 6 karakter), lalu ulangi sebagai konfirmasi.';$('#lm').textContent='';$('#lf').classList.add('hide');$('#rf').classList.remove('hide');$('#np').value='';$('#np2').value='';$('#np').focus()};
-$('#bk').onclick=()=>setRole(role);
-$('#u').onchange=async()=>{if(role=='pusat')return;const u=$('#u').value.trim();if(!u)return;const r=await lookup(u);if(r.closed)$('#lm').textContent='Akses ini belum dibuka oleh Kelurahan Anda (menunggu tahapan).';else if(!r.error&&r.data&&!r.data.pass_hash)firstLogin(r.tb,r.data)};
+$('#bk').onclick=()=>{$('#u').value='';setRole(role);$('#u').focus()};
+// Deteksi otomatis saat username diisi: tidak terdaftar -> pesan; belum registrasi -> form registrasi; sudah -> kolom password
+let dtok=0,dtm=null;
+const detect=async force=>{if(role=='pusat')return;const u=$('#u').value.trim(),m=$('#lm'),tok=++dtok;m.className='msg';m.textContent='';showPw(false);
+ if(!u||(!force&&normHp(u).length<10))return;
+ const r=await lookup(u);if(tok!=dtok)return;
+ if(r.error){m.textContent='Gagal terhubung: '+r.error.message;return}
+ if(r.closed){m.textContent='Akses ini belum dibuka oleh Kelurahan Anda (menunggu tahapan).';return}
+ if(!r.data){m.textContent='Username tidak terdaftar.';return}
+ if(!r.data.pass_hash)return firstLogin(r.tb,r.data);
+ showPw(true);$('#p').focus()};
+$('#u').addEventListener('input',()=>{clearTimeout(dtm);dtm=setTimeout(()=>detect(),500)});
+$('#u').onchange=()=>{clearTimeout(dtm);detect(true)};
 $('#lf').onsubmit=async e=>{e.preventDefault();const u=$('#u').value.trim(),p=$('#p').value,m=$('#lm');m.textContent='';
  if(!u){m.textContent='Isi username.';return}
  if(role=='pusat'){if(!p){m.textContent='Isi password.';return}
   const {data,error}=await sb.rpc('login_pusat',{u,p});
   if(error){m.textContent='Gagal terhubung: '+error.message;return}
   if(data===true){S={role};return render()}m.textContent='Username atau password salah.';return}
+ if($('#pwb').classList.contains('hide')){clearTimeout(dtm);await detect(true);return}
  const r=await lookup(u);
  if(r.error){m.textContent='Gagal terhubung: '+r.error.message;return}
- if(!r.data){m.textContent=r.closed?'Akses ini belum dibuka oleh Kelurahan Anda (menunggu tahapan).':'Nomor HP belum diregistrasi.';return}
+ if(!r.data){m.textContent=r.closed?'Akses ini belum dibuka oleh Kelurahan Anda (menunggu tahapan).':'Username tidak terdaftar.';return}
  if(!r.data.pass_hash)return firstLogin(r.tb,r.data);
  if(!p){m.textContent='Isi password.';return}
  if(r.data.pass_hash!==await hash(p)){m.textContent='Password salah.';return}
