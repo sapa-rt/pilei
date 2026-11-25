@@ -443,6 +443,8 @@ header.top .exit{grid-column:3;grid-row:1;justify-self:end;align-self:start;posi
 #p_sect>.card.pel{background:#e8f1fb;border-color:#c9dcf1}
 #p_sect>.card.pel>h3{background:#1f6fb2;color:#fff}
 #p_sect>.card.pel .pelg small{color:#4a6a8a}
+/* Pemilihan Calon (warga) PC/tablet: maksimal 6 foto calon per baris; bila kurang dari 6, lebar kartu tetap dan jarak antar kartu dibagi rata */
+@media(min-width:768px){.cgrid{grid-template-columns:repeat(var(--n,6),calc((100% - 50px)/6));justify-content:space-evenly;gap:10px}}
 .wcb{display:flex;gap:10px;margin:0 0 14px}
 .wcb button{flex:1;min-width:0;padding:12px 8px;border-radius:14px;border:2px solid var(--c);background:#fff;color:var(--c);font:inherit;font-weight:800;cursor:pointer;transition:background .2s,color .2s}
 .wcb button.on{background:var(--c);color:#fff}
@@ -1107,7 +1109,7 @@ const qc=await sb.from('calon').select('*').eq('kelurahan',S.kelurahan).eq('rw',
  const ttl=j=>'Pemilihan Ketua '+j+' '+esc(j=='RT'?S.rt:S.rw),secCard=(j,b)=>`<div class="card sc"><h3>${ttl(j)}</h3>${b}</div>`;
  const infoB=j=>mj[j]=='aklamasi'?(j=='RW'?'':`<p class="hint">Menunggu penetapan ${esc(un[j])} yang terpilih aklamasi.</p>`)+winH(j):`<p class="hint">Tidak ada pemilihan ${esc(un[j])} (belum ada calon yang mendaftar).</p>`;
  const extra=['RW','RT'].filter(j=>mj[j]!='pemilihan').map(j=>secCard(j,infoB(j))).join('');
- const blk=(j,l)=>(l.length?`<div class="cgrid">${l.map(x=>`<button type="button" class="cc" data-j="${j}" data-id="${x.id}" aria-pressed="false"><img src="${esc(x.foto_url)}" alt=""><span>${esc(x.nama)}</span><em>${ic('<path d="M5 12l5 5 9-10"/>',16)}</em></button>`).join('')}</div>`:'<p class="hint">Belum ada calon terdaftar.</p>');
+ const blk=(j,l)=>(l.length?`<div class="cgrid" style="--n:${Math.min(l.length,6)}">${l.map(x=>`<button type="button" class="cc" data-j="${j}" data-id="${x.id}" aria-pressed="false"><img src="${esc(x.foto_url)}" alt=""><span>${esc(x.nama)}</span><em>${ic('<path d="M5 12l5 5 9-10"/>',16)}</em></button>`).join('')}</div>`:'<p class="hint">Belum ada calon terdaftar.</p>');
  const terp=(t,l)=>{const m=Math.max(0,...l.map(x=>x.suara)),T=l.reduce((a,x)=>a+x.suara,0),pc=T?Math.round(m/T*1000)/10:0;if(!m)return '';const w=l.filter(x=>x.suara==m);
   if(w.length>1)return `<p class="hint">${t}: perolehan suara ${w.map(x=>esc(x.nama)).join(' dan ')} sama (seri). Penentuan lebih lanjut oleh pengurus.</p>`;
   return `<div class="win"><small>${t}</small><img src="${esc(w[0].foto_url)}" alt="Foto ${esc(w[0].nama)}"><b>${esc(w[0].nama)}</b><small style="margin:4px 0 0">${m} suara (${pc}%)</small></div>`};
